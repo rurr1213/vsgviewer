@@ -1,0 +1,18 @@
+{
+    "configurations": [
+        {
+            "name": "Linux", // or whatever name you prefer
+            "includePath": [
+                "${workspaceFolder}/**", // This includes all files in your workspace
+                "/home/ravi/miniconda3/envs/jupyterlab_env/targets/x86_64-linux/include/",
+                "/home/ravi/dev/video-sdk-samples/Samples/NvCodec"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/g++", // or your compiler path
+            "cStandard": "c11", // or your C standard
+            "cppStandard": "c++17", // or your C++ standard
+            "intelliSenseMode": "linux-gcc-x64" // or appropriate for your system
+        }
+    ],
+    "version": 4
+}

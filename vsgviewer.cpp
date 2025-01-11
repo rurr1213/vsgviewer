@@ -11,6 +11,10 @@
 #include <iostream>
 #include <thread>
 
+#include "H264NVEncoder.h"
+
+H264NVEncoder h264NVEncoder;
+
 vsg::ref_ptr<vsg::Data> captureScreenshot(vsg::ref_ptr<vsg::Window> window, vsg::ref_ptr<vsg::Options> options, vsg::ref_ptr<vsg::Event> event, bool eventDebugTest = false) // Add event and eventDebugTest parameters
 {
     // printInfo(window);
@@ -267,6 +271,7 @@ void captureAndSave(vsg::ref_ptr<vsg::Window> _window, vsg::ref_ptr<vsg::Options
         times = 100;
     }
 }
+
 
 vsg::ref_ptr<vsg::Node> createTextureQuad(vsg::ref_ptr<vsg::Data> sourceData, vsg::ref_ptr<vsg::Options> options)
 {
@@ -623,6 +628,7 @@ int main(int argc, char** argv)
         bool do_image_capture = false;
         bool eventDebugTest = false; // or true if you need the debug behavior
         vsg::ref_ptr<vsg::Event> event; //  Make sure this is declared if the screenshot function uses it.
+//        h264NVEncoder.init(nWidth, nHeight, &encodeCLIOptions, eFormat);
 
         viewer->start_point() = vsg::clock::now();
 

@@ -249,12 +249,12 @@ vsg::ref_ptr<vsg::Data> captureScreenshot(vsg::ref_ptr<vsg::Window> window, vsg:
     return imageData; // Return the captured image data
 }
 
-void captureAndSave(vsg::ref_ptr<vsg::Window> _window, vsg::ref_ptr<vsg::Options> _options, vsg::ref_ptr<vsg::Event> _event)
+void captureAndSave(vsg::ref_ptr<vsg::Window> window, vsg::ref_ptr<vsg::Options> _options, vsg::ref_ptr<vsg::Event> _event)
 {
     static int times = 20;
 
     if (times--==0) {
-        if (auto imageData = captureScreenshot(_window, _options, _event))
+        if (auto imageData = captureScreenshot(window, _options, _event))
         {
             vsg::Path filename = _options->paths.empty() ? "screenshot.png" : _options->paths[0] / "screenshot.png";
 //            vsg::Path filename = _options->paths.empty() ? "screenshot2.jpg" : _options->paths[0] / "screenshot2.jpg";
@@ -267,8 +267,9 @@ void captureAndSave(vsg::ref_ptr<vsg::Window> _window, vsg::ref_ptr<vsg::Options
             {
                 std::cout << "Failed to save screenshot." << std::endl;
             }
+        } else {
+            std::cout << "Failed to capture screenshot." << std::endl;
         }
-        times = 100;
     }
 }
 

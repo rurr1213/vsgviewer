@@ -15,7 +15,7 @@
 
 H264NVEncoder h264NVEncoder;
 
-vsg::ref_ptr<vsg::Data> captureScreenshot(vsg::ref_ptr<vsg::Window> window, vsg::ref_ptr<vsg::Options> options, vsg::ref_ptr<vsg::Event> event, bool eventDebugTest = false) // Add event and eventDebugTest parameters
+vsg::ref_ptr<vsg::Data> captureScreenshot(vsg::ref_ptr<vsg::Window> window, vsg::ref_ptr<vsg::Options> options, vsg::ref_ptr<vsg::Event> event, int targetWidth, int targetHeight, bool eventDebugTest = false) // Add event and eventDebugTest parameters
 {
     // printInfo(window);
 
@@ -79,6 +79,14 @@ vsg::ref_ptr<vsg::Data> captureScreenshot(vsg::ref_ptr<vsg::Window> window, vsg:
     destinationImage->samples = VK_SAMPLE_COUNT_1_BIT;
     destinationImage->tiling = VK_IMAGE_TILING_LINEAR;
     destinationImage->usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+
+    if (supportsBlit)
+    {
+       //Set destinationImage size to targetWidth, targetHeight if we're going to scale while blitting.
+        destinationImage->extent.width = targetWidth;
+        destinationImage->extent.height = targetHeight;
+    }
+
 
     destinationImage->compile(device);
 
@@ -150,8 +158,16 @@ vsg::ref_ptr<vsg::Data> captureScreenshot(vsg::ref_ptr<vsg::Window> window, vsg:
         blitImage->srcImageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
         blitImage->dstImage = destinationImage;
         blitImage->dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+
+       // *** SCALING HAPPENS HERE ***
+        // Destination offsets and extent for scaling:
+        region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        region.dstSubresource.layerCount = 1;
+        region.dstOffsets[0] = VkOffset3D{0, 0, 0};
+        region.dstOffsets[1] = VkOffset3D{static_cast<int32_t>(targetWidth), static_cast<int32_t>(targetHeight), 1}; // Target dimensions
+
         blitImage->regions.push_back(region);
-        blitImage->filter = VK_FILTER_NEAREST;
+        blitImage->filter = VK_FILTER_LINEAR;
 
         commands->addChild(blitImage);
     }
@@ -254,7 +270,13 @@ void captureAndSave(vsg::ref_ptr<vsg::Window> window, vsg::ref_ptr<vsg::Options>
     static int times = 20;
 
     if (times--==0) {
-        if (auto imageData = captureScreenshot(window, _options, _event))
+        /* *********** ************************************************
+        this will scale the image to the target width! and distort the axpect ratio, but good for transmission.
+        Adjust source image to have the correct aspect ratio as well. */
+        
+        int targetWidth = 1920;  // or whatever dimensions you need
+        int targetHeight = 1080; // or whatever dimensions you need
+        if (auto imageData = captureScreenshot(window, _options, _event, targetWidth, targetHeight))
         {
             vsg::Path filename = _options->paths.empty() ? "screenshot.png" : _options->paths[0] / "screenshot.png";
 //            vsg::Path filename = _options->paths.empty() ? "screenshot2.jpg" : _options->paths[0] / "screenshot2.jpg";

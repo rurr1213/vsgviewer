@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ravi/dev/vulkan/vsgExamples
+CMAKE_SOURCE_DIR = /home/ravi/dev/photon/vsgviewer
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ravi/dev/vulkan/vsgExamples
+CMAKE_BINARY_DIR = /home/ravi/dev/photon/vsgviewer
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -132,14 +132,14 @@ install/strip/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/ravi/dev/vulkan/vsgExamples && $(CMAKE_COMMAND) -E cmake_progress_start /home/ravi/dev/vulkan/vsgExamples/CMakeFiles /home/ravi/dev/vulkan/vsgExamples/examples/app/vsgviewer//CMakeFiles/progress.marks
-	cd /home/ravi/dev/vulkan/vsgExamples && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 examples/app/vsgviewer/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ravi/dev/vulkan/vsgExamples/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ravi/dev/photon/vsgviewer/CMakeFiles /home/ravi/dev/photon/vsgviewer//CMakeFiles/progress.marks
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ravi/dev/photon/vsgviewer/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/ravi/dev/vulkan/vsgExamples && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 examples/app/vsgviewer/clean
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 clean
 .PHONY : clean
 
 # The main clean target
@@ -148,39 +148,86 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/ravi/dev/vulkan/vsgExamples && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 examples/app/vsgviewer/preinstall
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/ravi/dev/vulkan/vsgExamples && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 examples/app/vsgviewer/preinstall
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /home/ravi/dev/vulkan/vsgExamples && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	$(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
-# Convenience name for target.
-examples/app/vsgviewer/CMakeFiles/vsgviewer.dir/rule:
-	cd /home/ravi/dev/vulkan/vsgExamples && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 examples/app/vsgviewer/CMakeFiles/vsgviewer.dir/rule
-.PHONY : examples/app/vsgviewer/CMakeFiles/vsgviewer.dir/rule
+#=============================================================================
+# Target rules for targets named vsgviewer
 
-# Convenience name for target.
-vsgviewer: examples/app/vsgviewer/CMakeFiles/vsgviewer.dir/rule
+# Build rule for target.
+vsgviewer: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 vsgviewer
 .PHONY : vsgviewer
 
 # fast build rule for target.
 vsgviewer/fast:
-	cd /home/ravi/dev/vulkan/vsgExamples && $(MAKE) $(MAKESILENT) -f examples/app/vsgviewer/CMakeFiles/vsgviewer.dir/build.make examples/app/vsgviewer/CMakeFiles/vsgviewer.dir/build
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vsgviewer.dir/build.make CMakeFiles/vsgviewer.dir/build
 .PHONY : vsgviewer/fast
+
+home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.o: home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.cpp.o
+.PHONY : home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.o
+
+# target to build an object file
+home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vsgviewer.dir/build.make CMakeFiles/vsgviewer.dir/home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.cpp.o
+.PHONY : home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.cpp.o
+
+home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.i: home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.cpp.i
+.PHONY : home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.i
+
+# target to preprocess a source file
+home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vsgviewer.dir/build.make CMakeFiles/vsgviewer.dir/home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.cpp.i
+.PHONY : home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.cpp.i
+
+home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.s: home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.cpp.s
+.PHONY : home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.s
+
+# target to generate assembly for a file
+home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vsgviewer.dir/build.make CMakeFiles/vsgviewer.dir/home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.cpp.s
+.PHONY : home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.cpp.s
+
+home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoderCuda.o: home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoderCuda.cpp.o
+.PHONY : home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoderCuda.o
+
+# target to build an object file
+home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoderCuda.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vsgviewer.dir/build.make CMakeFiles/vsgviewer.dir/home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoderCuda.cpp.o
+.PHONY : home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoderCuda.cpp.o
+
+home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoderCuda.i: home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoderCuda.cpp.i
+.PHONY : home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoderCuda.i
+
+# target to preprocess a source file
+home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoderCuda.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vsgviewer.dir/build.make CMakeFiles/vsgviewer.dir/home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoderCuda.cpp.i
+.PHONY : home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoderCuda.cpp.i
+
+home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoderCuda.s: home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoderCuda.cpp.s
+.PHONY : home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoderCuda.s
+
+# target to generate assembly for a file
+home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoderCuda.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vsgviewer.dir/build.make CMakeFiles/vsgviewer.dir/home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoderCuda.cpp.s
+.PHONY : home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoderCuda.cpp.s
 
 vsgviewer.o: vsgviewer.cpp.o
 .PHONY : vsgviewer.o
 
 # target to build an object file
 vsgviewer.cpp.o:
-	cd /home/ravi/dev/vulkan/vsgExamples && $(MAKE) $(MAKESILENT) -f examples/app/vsgviewer/CMakeFiles/vsgviewer.dir/build.make examples/app/vsgviewer/CMakeFiles/vsgviewer.dir/vsgviewer.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vsgviewer.dir/build.make CMakeFiles/vsgviewer.dir/vsgviewer.cpp.o
 .PHONY : vsgviewer.cpp.o
 
 vsgviewer.i: vsgviewer.cpp.i
@@ -188,7 +235,7 @@ vsgviewer.i: vsgviewer.cpp.i
 
 # target to preprocess a source file
 vsgviewer.cpp.i:
-	cd /home/ravi/dev/vulkan/vsgExamples && $(MAKE) $(MAKESILENT) -f examples/app/vsgviewer/CMakeFiles/vsgviewer.dir/build.make examples/app/vsgviewer/CMakeFiles/vsgviewer.dir/vsgviewer.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vsgviewer.dir/build.make CMakeFiles/vsgviewer.dir/vsgviewer.cpp.i
 .PHONY : vsgviewer.cpp.i
 
 vsgviewer.s: vsgviewer.cpp.s
@@ -196,7 +243,7 @@ vsgviewer.s: vsgviewer.cpp.s
 
 # target to generate assembly for a file
 vsgviewer.cpp.s:
-	cd /home/ravi/dev/vulkan/vsgExamples && $(MAKE) $(MAKESILENT) -f examples/app/vsgviewer/CMakeFiles/vsgviewer.dir/build.make examples/app/vsgviewer/CMakeFiles/vsgviewer.dir/vsgviewer.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vsgviewer.dir/build.make CMakeFiles/vsgviewer.dir/vsgviewer.cpp.s
 .PHONY : vsgviewer.cpp.s
 
 # Help Target
@@ -212,6 +259,12 @@ help:
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... vsgviewer"
+	@echo "... home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.o"
+	@echo "... home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.i"
+	@echo "... home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.s"
+	@echo "... home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoderCuda.o"
+	@echo "... home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoderCuda.i"
+	@echo "... home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoderCuda.s"
 	@echo "... vsgviewer.o"
 	@echo "... vsgviewer.i"
 	@echo "... vsgviewer.s"
@@ -226,6 +279,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /home/ravi/dev/vulkan/vsgExamples && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	$(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

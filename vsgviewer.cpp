@@ -14,6 +14,9 @@
 #include "H264NVEncoder.h"
 
 H264NVEncoder h264NVEncoder;
+int nWidth = 1920;  // or whatever dimensions you need
+int nHeight = 1080; // or whatever dimensions you need
+simplelogger::Logger *logger = simplelogger::LoggerFactory::CreateConsoleLogger();
 
 vsg::ref_ptr<vsg::Data> captureScreenshot(vsg::ref_ptr<vsg::Window> window, vsg::ref_ptr<vsg::Options> options, vsg::ref_ptr<vsg::Event> event, int targetWidth, int targetHeight, bool eventDebugTest = false) // Add event and eventDebugTest parameters
 {
@@ -273,9 +276,9 @@ void captureAndSave(vsg::ref_ptr<vsg::Window> window, vsg::ref_ptr<vsg::Options>
         /* *********** ************************************************
         this will scale the image to the target width! and distort the axpect ratio, but good for transmission.
         Adjust source image to have the correct aspect ratio as well. */
-        
-        int targetWidth = 1920;  // or whatever dimensions you need
-        int targetHeight = 1080; // or whatever dimensions you need
+
+        int targetWidth = nWidth;  // or whatever dimensions you need
+        int targetHeight = nHeight; // or whatever dimensions you need
         if (auto imageData = captureScreenshot(window, _options, _event, targetWidth, targetHeight))
         {
             vsg::Path filename = _options->paths.empty() ? "screenshot.png" : _options->paths[0] / "screenshot.png";
@@ -647,11 +650,14 @@ int main(int argc, char** argv)
             }
         }
 
+        NvEncoderInitParam encodeCLIOptions;
+        NV_ENC_BUFFER_FORMAT  eFormat = NV_ENC_BUFFER_FORMAT_NV12;
+
         // Declare do_image_capture here, in the main function's scope
         bool do_image_capture = false;
         bool eventDebugTest = false; // or true if you need the debug behavior
         vsg::ref_ptr<vsg::Event> event; //  Make sure this is declared if the screenshot function uses it.
-//        h264NVEncoder.init(nWidth, nHeight, &encodeCLIOptions, eFormat);
+        h264NVEncoder.init(nWidth, nHeight, &encodeCLIOptions, eFormat);
 
         viewer->start_point() = vsg::clock::now();
 

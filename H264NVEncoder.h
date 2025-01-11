@@ -77,6 +77,8 @@ public:
 
         nFrameSize = penc->GetFrameSize();
 
+        std::cout << "H264NVEncoder: initialized" << std::endl;
+
         return true;
     }
 
@@ -111,6 +113,9 @@ public:
         if (!penc) return false;
         penc->DestroyEncoder();
         penc = 0;
+
+        std::cout << "H264NVEncoder: deinitialized" << std::endl;
+
         return true;
     }
 };

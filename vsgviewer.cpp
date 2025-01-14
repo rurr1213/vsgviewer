@@ -18,7 +18,7 @@ int nWidth = 1920;  // or whatever dimensions you need
 int nHeight = 1080; // or whatever dimensions you need
 simplelogger::Logger *logger = simplelogger::LoggerFactory::CreateConsoleLogger();
 
-vsg::ref_ptr<vsg::Data> captureScreenshot(vsg::ref_ptr<vsg::Window> window, vsg::ref_ptr<vsg::Options> options, vsg::ref_ptr<vsg::Event> event, int targetWidth, int targetHeight, bool eventDebugTest = false) // Add event and eventDebugTest parameters
+vsg::ref_ptr<vsg::ubvec4Array2D> captureScreenshot(vsg::ref_ptr<vsg::Window> window, vsg::ref_ptr<vsg::Options> options, vsg::ref_ptr<vsg::Event> event, int targetWidth, int targetHeight, bool eventDebugTest = false) // Add event and eventDebugTest parameters
 {
     // printInfo(window);
 
@@ -241,32 +241,116 @@ vsg::ref_ptr<vsg::Data> captureScreenshot(vsg::ref_ptr<vsg::Window> window, vsg:
     });
 
     //
-    // 4) map image and copy
+    // 4) Create the final imageData as a ubvec4Array2D
     //
+    auto imageData = vsg::ubvec4Array2D::create(targetWidth, targetHeight, vsg::Data::Properties{targetImageFormat});
+
+   void* mappedData;
+    VkResult result = vkMapMemory(*device, *deviceMemory, 0, destinationImage->getMemoryRequirements(device->deviceID).size, 0, &mappedData);
+    if (result != VK_SUCCESS) {
+        throw vsg::Exception{"Failed to map memory for screenshot.", result};
+    }
+
     VkImageSubresource subResource{VK_IMAGE_ASPECT_COLOR_BIT, 0, 0};
     VkSubresourceLayout subResourceLayout;
+
     vkGetImageSubresourceLayout(*device, destinationImage->vk(device->deviceID), &subResource, &subResourceLayout);
 
-    size_t destRowWidth = width * sizeof(vsg::ubvec4);
-    vsg::ref_ptr<vsg::Data> imageData;
+    size_t destRowWidth = targetWidth * sizeof(vsg::ubvec4); // Use targetWidth for correct size
     if (destRowWidth == subResourceLayout.rowPitch)
     {
-        imageData = vsg::MappedData<vsg::ubvec4Array2D>::create(deviceMemory, subResourceLayout.offset, 0, vsg::Data::Properties{targetImageFormat}, width, height); // deviceMemory, offset, flags and dimensions
+        memcpy(imageData->dataPointer(), mappedData, imageData->dataSize());
     }
     else
     {
-        // Map the buffer memory and assign as a ubyteArray that will automatically unmap itself on destruction.
-        // A ubyteArray is used as the graphics buffer memory is not contiguous like vsg::Array2D, so map to a flat buffer first then copy to Array2D.
-        auto mappedData = vsg::MappedData<vsg::ubyteArray>::create(deviceMemory, subResourceLayout.offset, 0, vsg::Data::Properties{targetImageFormat}, subResourceLayout.rowPitch * height);
-        imageData = vsg::ubvec4Array2D::create(width, height, vsg::Data::Properties{targetImageFormat});
-        for (uint32_t row = 0; row < height; ++row)
+        for (uint32_t row = 0; row < targetHeight; ++row)
         {
-            std::memcpy(imageData->dataPointer(row * width), mappedData->dataPointer(row * subResourceLayout.rowPitch), destRowWidth);
+            memcpy(imageData->dataPointer(row * targetWidth), static_cast<uint8_t*>(mappedData) + row * subResourceLayout.rowPitch, destRowWidth);
         }
     }
 
-    return imageData; // Return the captured image data
+    deviceMemory->unmap();
+    std::cout << "targetImageFormat = " << targetImageFormat << std::endl;
+    std::cout << "targetImageFormat = " << imageData << std::endl;
+
+    return vsg::ref_ptr<vsg::ubvec4Array2D>(imageData); // Return a ref_ptr
 }
+
+void rgbaToNv12(const uint8_t* rgbaData, int width, int height, std::vector<uint8_t>& nv12Data)
+{
+    nv12Data.resize(width * height * 3 / 2); // Allocate memory for NV12
+
+    uint8_t* yPlane = nv12Data.data();
+    uint8_t* uvPlane = yPlane + width * height;
+
+    for (int y = 0; y < height; ++y)
+    {
+        for (int x = 0; x < width; ++x)
+        {
+            int rgbaIndex = (y * width + x) * 4;
+            uint8_t r = rgbaData[rgbaIndex];
+            uint8_t g = rgbaData[rgbaIndex + 1];
+            uint8_t b = rgbaData[rgbaIndex + 2];
+
+            // YUV conversion (BT.709)
+            int yVal = 0.2126f * r + 0.7152f * g + 0.0722f * b;
+            yPlane[y * width + x] = static_cast<uint8_t>(std::clamp(yVal, 0, 255));
+
+            // Chroma subsampling (average of 2x2 block) - only for even coordinates
+            if (x % 2 == 0 && y % 2 == 0)
+            {
+                int uVal = -0.0999f * r - 0.3360f * g + 0.4360f * b;
+                int vVal = 0.6150f * r - 0.5586f * g - 0.0563f * b;
+
+
+                uvPlane[(y / 2) * width + x] = static_cast<uint8_t>(std::clamp(uVal+128, 0, 255)); // U
+                uvPlane[(y / 2) * width + x + 1] = static_cast<uint8_t>(std::clamp(vVal+128, 0, 255)); // V
+
+            }
+        }
+    }
+}
+
+void nv12ToRgba(const uint8_t* nv12Data, int width, int height, std::vector<uint8_t>& rgbaData) {
+    rgbaData.resize(width * height * 4); // Allocate space for RGBA data
+
+    const uint8_t* yPlane = nv12Data;
+    const uint8_t* uvPlane = yPlane + width * height;
+
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            int yIndex = y * width + x;
+            int uvIndex = (y / 2) * width + (x / 2) * 2; // Adjust for interleaved UV
+            int rgbaIndex = (y * width + x) * 4;
+
+
+            // Correctly extract U and V values
+            uint8_t u = uvPlane[uvIndex];
+            uint8_t v = uvPlane[uvIndex + 1];
+            uint8_t yy = yPlane[yIndex];
+
+
+
+            // YUV to RGB conversion (BT.709)
+            int c = yy - 16;
+            int d = u - 128;
+            int e = v - 128;
+
+            int r = (298 * c + 409 * e + 128) >> 8;
+            int g = (298 * c - 100 * d - 208 * e + 128) >> 8;
+            int b = (298 * c + 516 * d + 128) >> 8;
+
+
+
+            // Clamp and assign RGB values
+            rgbaData[rgbaIndex] = static_cast<uint8_t>(std::clamp(r, 0, 255));
+            rgbaData[rgbaIndex + 1] = static_cast<uint8_t>(std::clamp(g, 0, 255));
+            rgbaData[rgbaIndex + 2] = static_cast<uint8_t>(std::clamp(b, 0, 255));
+            rgbaData[rgbaIndex + 3] = 255; // Alpha (fully opaque)
+        }
+    }
+}
+
 
 void captureAndSave(vsg::ref_ptr<vsg::Window> window, vsg::ref_ptr<vsg::Options> _options, vsg::ref_ptr<vsg::Event> _event)
 {
@@ -282,28 +366,23 @@ void captureAndSave(vsg::ref_ptr<vsg::Window> window, vsg::ref_ptr<vsg::Options>
         int nCaptured = 1;
         if (auto imageData = captureScreenshot(window, _options, _event, targetWidth, targetHeight))
         {
-            /*
-            std::vector<std::vector<uint8_t>> vPacket;
-
-            auto data = imageData->dataPointer();
-
-            size_t rgbaDataSize = imageData->width() * imageData->height() * data->valueSize(); // Correct size calculation
-
-            std::vector<uint8_t> rgbaData(rgbaDataSize);
-            std::memcpy(rgbaData.data(), data->dataPointer(), rgbaDataSize);
-
-            // Convert RGBA to NV12 (Implementation not shown, but now uses the correct size)
+            // Determine correct initial size. Scaling will occur after this.
+/*
             std::vector<uint8_t> nv12Data;
-            //rgbaToNv12(rgbaData.data(), targetWidth, targetHeight, nv12Data); // Example usage; implement your conversion
 
-            h264NVEncoder.encode(nv12Data.data(), nv12Data.size(), vPacket); // Encode NV12 data
+            rgbaToNv12(reinterpret_cast<const uint8_t*>(imageData->data()), targetWidth, targetHeight, nv12Data);  // Convert to NV12
 
-            */
+            std::vector<uint8_t> convertedRgbaData;
 
+            nv12ToRgba(nv12Data.data(), targetWidth, targetHeight, convertedRgbaData);  // Convert back to RGBA
+*/
+            // Writing to PNG
             vsg::Path filename = _options->paths.empty() ? "screenshot.png" : _options->paths[0] / "screenshot.png";
-//            vsg::Path filename = _options->paths.empty() ? "screenshot2.jpg" : _options->paths[0] / "screenshot2.jpg";
-//            std::remove(filename.c_str());
+
+            // Create vsg::Data for writing
+
             if (vsg::write(imageData, filename, _options))
+//            if (vsg::write(imageData, filename, _options))
             {
                 std::cout << "Screenshot saved to " << filename << std::endl;
             }

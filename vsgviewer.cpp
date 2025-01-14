@@ -12,8 +12,11 @@
 #include <thread>
 
 #include "H264NVEncoder.h"
+#include "PipeToFFmpeg.h"
 
+PipeToFFmpeg pipeToFFmpeg;
 H264NVEncoder h264NVEncoder;
+
 int nWidth = 1920;  // or whatever dimensions you need
 int nHeight = 1080; // or whatever dimensions you need
 simplelogger::Logger *logger = simplelogger::LoggerFactory::CreateConsoleLogger();
@@ -383,6 +386,24 @@ void captureAndSave(vsg::ref_ptr<vsg::Window> window, vsg::ref_ptr<vsg::Options>
             auto image = vsg::ubvec4Array2D::create(targetWidth, targetHeight, vsg::Data::Properties{VK_FORMAT_R8G8B8A8_UNORM});
             memcpy(image->data(), convertedRgbaData.data(), convertedRgbaData.size());
 
+            std::cout << "NVData size " << nv12Data.size() << std::endl;
+            std::vector<std::vector<uint8_t>> encodedPackets;
+            int numPackets = h264NVEncoder.encode(nv12Data, nv12Data.size(), encodedPackets); // Use nv12Data, correct size, and store packets
+            std::cout << "Encodeded Packets   " << encodedPackets.size() << std::endl;
+            for (auto& packet : encodedPackets)
+            {
+                pipeToFFmpeg.encodeAndStream(packet);
+            }
+            std::cout << "sent   " << encodedPackets.size() << " packets" << std::endl;
+
+
+            numPackets += h264NVEncoder.encode(nv12Data, 0, encodedPackets); // get last packet
+            for (auto& packet : encodedPackets)
+            {
+                pipeToFFmpeg.encodeAndStream(packet);
+            }
+            std::cout << "sent   " << encodedPackets.size() << " packets" << std::endl;
+            
             if (vsg::write(image, filename, _options))
 //            if (vsg::write(imageData, filename, _options))
             {

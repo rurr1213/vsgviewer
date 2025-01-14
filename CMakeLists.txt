@@ -22,6 +22,8 @@ find_package(vsgXchange REQUIRED)
 set(SOURCES
     vsgviewer.cpp
     ${NVENCODER_SOURCES}
+    H264NVEncoder.h
+    PipeToFFmpeg.h
 )
 
 add_executable(vsgviewer ${SOURCES})

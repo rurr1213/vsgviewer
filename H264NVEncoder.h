@@ -82,14 +82,13 @@ public:
         return true;
     }
 
-    int encode(std::unique_ptr<uint8_t[]>& pHostFrame, int nsize, std::vector<std::vector<uint8_t>> &vPacket) {
-        vPacket.clear();
+    int encode(std::vector<uint8_t>& pImage, int nsize, std::vector<std::vector<uint8_t>> &vPacket) {
 
         int nRead = nsize;
         if (nRead == nFrameSize) {
 
             encoderInputFrame = penc->GetNextInputFrame();
-            NvEncoderCuda::CopyToDeviceFrame(cuContext, pHostFrame.get(), 0, (CUdeviceptr)encoderInputFrame->inputPtr,
+            NvEncoderCuda::CopyToDeviceFrame(cuContext, pImage.data(), 0, (CUdeviceptr)encoderInputFrame->inputPtr,
                 (int)encoderInputFrame->pitch,
                 penc->GetEncodeWidth(),
                 penc->GetEncodeHeight(),

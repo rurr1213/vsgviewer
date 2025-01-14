@@ -94,9 +94,9 @@ public:
                 penc->GetEncodeWidth(),
                 penc->GetEncodeHeight(),
                 CU_MEMORYTYPE_HOST,
-                encoderInputFrame->bufferFormat,
+                encoderInputFrame->bufferFormat, // Make sure this is NV12
                 encoderInputFrame->chromaOffsets,
-                encoderInputFrame->numChromaPlanes);
+                encoderInputFrame->numChromaPlanes); // Should be 1 for NV12?
 
             picParams.encodePicFlags = NV_ENC_PIC_FLAG_FORCEIDR; //Set flag
             picParams.inputBuffer = encoderInputFrame->inputPtr;

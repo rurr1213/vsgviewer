@@ -73,8 +73,8 @@ vsg::ref_ptr<vsg::Data> captureScreenshot(vsg::ref_ptr<vsg::Window> window, vsg:
     auto destinationImage = vsg::Image::create();
     destinationImage->imageType = VK_IMAGE_TYPE_2D;
     destinationImage->format = targetImageFormat;
-    destinationImage->extent.width = width;
-    destinationImage->extent.height = height;
+    destinationImage->extent.width = targetWidth;  // Use target dimensions
+    destinationImage->extent.height = targetHeight; // Use target dimensions
     destinationImage->extent.depth = 1;
     destinationImage->arrayLayers = 1;
     destinationImage->mipLevels = 1;
@@ -153,8 +153,8 @@ vsg::ref_ptr<vsg::Data> captureScreenshot(vsg::ref_ptr<vsg::Window> window, vsg:
         region.srcOffsets[1] = VkOffset3D{static_cast<int32_t>(width), static_cast<int32_t>(height), 1};
         region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         region.dstSubresource.layerCount = 1;
-        region.dstOffsets[0] = VkOffset3D{0, 0, 0};
-        region.dstOffsets[1] = VkOffset3D{static_cast<int32_t>(width), static_cast<int32_t>(height), 1};
+        region.dstOffsets[0] = {0, 0, 0};
+        region.dstOffsets[1] = {static_cast<int32_t>(targetWidth), static_cast<int32_t>(targetHeight), 1}; // Target dimensions
 
         auto blitImage = vsg::BlitImage::create();
         blitImage->srcImage = sourceImage;
@@ -279,8 +279,27 @@ void captureAndSave(vsg::ref_ptr<vsg::Window> window, vsg::ref_ptr<vsg::Options>
 
         int targetWidth = nWidth;  // or whatever dimensions you need
         int targetHeight = nHeight; // or whatever dimensions you need
+        int nCaptured = 1;
         if (auto imageData = captureScreenshot(window, _options, _event, targetWidth, targetHeight))
         {
+            /*
+            std::vector<std::vector<uint8_t>> vPacket;
+
+            auto data = imageData->dataPointer();
+
+            size_t rgbaDataSize = imageData->width() * imageData->height() * data->valueSize(); // Correct size calculation
+
+            std::vector<uint8_t> rgbaData(rgbaDataSize);
+            std::memcpy(rgbaData.data(), data->dataPointer(), rgbaDataSize);
+
+            // Convert RGBA to NV12 (Implementation not shown, but now uses the correct size)
+            std::vector<uint8_t> nv12Data;
+            //rgbaToNv12(rgbaData.data(), targetWidth, targetHeight, nv12Data); // Example usage; implement your conversion
+
+            h264NVEncoder.encode(nv12Data.data(), nv12Data.size(), vPacket); // Encode NV12 data
+
+            */
+
             vsg::Path filename = _options->paths.empty() ? "screenshot.png" : _options->paths[0] / "screenshot.png";
 //            vsg::Path filename = _options->paths.empty() ? "screenshot2.jpg" : _options->paths[0] / "screenshot2.jpg";
 //            std::remove(filename.c_str());
@@ -696,6 +715,8 @@ int main(int argc, char** argv)
                 profiler->log->report(std::cout);
             }
         }
+
+        h264NVEncoder.deinit();
     }
     catch (const vsg::Exception& ve)
     {

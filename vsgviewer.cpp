@@ -367,7 +367,7 @@ void captureAndSave(vsg::ref_ptr<vsg::Window> window, vsg::ref_ptr<vsg::Options>
         if (auto imageData = captureScreenshot(window, _options, _event, targetWidth, targetHeight))
         {
             // Determine correct initial size. Scaling will occur after this.
-/*
+
             std::vector<uint8_t> nv12Data;
 
             rgbaToNv12(reinterpret_cast<const uint8_t*>(imageData->data()), targetWidth, targetHeight, nv12Data);  // Convert to NV12
@@ -375,13 +375,15 @@ void captureAndSave(vsg::ref_ptr<vsg::Window> window, vsg::ref_ptr<vsg::Options>
             std::vector<uint8_t> convertedRgbaData;
 
             nv12ToRgba(nv12Data.data(), targetWidth, targetHeight, convertedRgbaData);  // Convert back to RGBA
-*/
+
             // Writing to PNG
             vsg::Path filename = _options->paths.empty() ? "screenshot.png" : _options->paths[0] / "screenshot.png";
 
             // Create vsg::Data for writing
+            auto image = vsg::ubvec4Array2D::create(targetWidth, targetHeight, vsg::Data::Properties{VK_FORMAT_R8G8B8A8_UNORM});
+            memcpy(image->data(), convertedRgbaData.data(), convertedRgbaData.size());
 
-            if (vsg::write(imageData, filename, _options))
+            if (vsg::write(image, filename, _options))
 //            if (vsg::write(imageData, filename, _options))
             {
                 std::cout << "Screenshot saved to " << filename << std::endl;

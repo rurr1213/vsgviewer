@@ -21,6 +21,47 @@ H264NVEncoder h264NVEncoder;
 
 simplelogger::Logger *logger = simplelogger::LoggerFactory::CreateConsoleLogger();
 
+
+class CaptureStats {
+    int numCaptures = 0;
+    std::chrono::_V2::steady_clock::time_point startTime;
+    std::chrono::_V2::steady_clock::time_point lastStartTime;
+    double totalCaptureTimeMSecs = 0;
+    double totalRepeatTimeMSecs = -1;
+public:
+    void start() {
+        numCaptures++;
+        startTime = vsg::clock::now(); // Get the current time
+    }
+    void stop() {
+        auto currentTime = vsg::clock::now(); // Get the current time
+        auto captureTime = std::chrono::duration<double, std::milli>(currentTime - startTime).count(); // Calculate elapsed time
+        totalCaptureTimeMSecs += captureTime;
+        if (totalRepeatTimeMSecs<0) {
+            lastStartTime = startTime;
+            totalRepeatTimeMSecs = 0;
+        } else {
+            auto repeatTime = std::chrono::duration<double, std::milli>(startTime - lastStartTime).count(); // Calculate elapsed time
+            totalRepeatTimeMSecs += repeatTime;
+            lastStartTime = startTime;
+    }
+    }
+
+    void report() {
+        std::cout << "Performance report"   << std::endl;
+        std::cout << "Captures: "  << numCaptures << std::endl;
+        std::cout << "Average capture time: " << totalCaptureTimeMSecs / numCaptures << " ms" << std::endl;
+        if (numCaptures>0) {
+            double repeatTime = totalRepeatTimeMSecs / (numCaptures-1);
+            double fps = 1000.0 / repeatTime;
+            std::cout << "Average repeat time: " << totalRepeatTimeMSecs / (numCaptures-1) << "ms" << std::endl;
+            std::cout << "fps: " << fps << std::endl;
+        }
+    }
+};
+
+CaptureStats captureStats;
+
 Capture::Capture(int width, int height) : nWidth(width), nHeight(height) {
 
 }
@@ -42,6 +83,9 @@ bool Capture::deinit(void) {
     bool status = true;
     status = status && h264NVEncoder.deinit();
     status = status && pipeToFFmpeg.deinit();
+
+    captureStats.report();
+
     return status;
 }
 
@@ -405,6 +449,7 @@ void Capture::captureAndSave(vsg::ref_ptr<vsg::Window> window, vsg::ref_ptr<vsg:
         int targetWidth = nWidth;  // or whatever dimensions you need
         int targetHeight = nHeight; // or whatever dimensions you need
         int nCaptured = 1;
+        captureStats.start();
         if (auto imageData = captureScreenshot(window, _options, event, targetWidth, targetHeight))
         {
             // Determine correct initial size. Scaling will occur after this.
@@ -452,5 +497,6 @@ void Capture::captureAndSave(vsg::ref_ptr<vsg::Window> window, vsg::ref_ptr<vsg:
         } else {
             std::cout << "Failed to capture screenshot." << std::endl;
         }
+        captureStats.stop();
     }
 }

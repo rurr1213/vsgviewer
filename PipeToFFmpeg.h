@@ -40,7 +40,18 @@ public:
 
             // Construct and execute the ffmpeg command.  Adjust as needed!
             // Important: -c copy to avoid ffmpeg re-encoding
-           execlp("ffmpeg", "ffmpeg", "-re", "-i", "-", "-c", "copy", "-f", "rtp", "rtp://172.18.0.3:5018",  NULL);
+//           execlp("ffmpeg", "ffmpeg", "-re", "-i", "-", "-c", "copy", "-f", "rtp", "rtp://172.18.0.3:5018",  NULL);
+           execlp("ffmpeg", "ffmpeg",
+                "-re",
+                "-i",
+                "-",
+                "-analyzeduration", "0",
+                "-probesize", "32",
+                "-flush_packets", "1",
+                "-g", "1",
+                "-c", "copy",
+                "-f",
+                "rtp", "rtp://172.18.0.3:5018",  NULL);
 
 
             perror("execlp"); // This should only be reached on error
@@ -60,27 +71,21 @@ public:
 
 
     void encodeAndStream(std::vector<uint8_t>& packet) {
-        std::cout << "about to send " << packet.size() << " bytes" << std::endl;
-
         if (!pipe_in) return;
-
-        std::cout << "about to send2 " << packet.size() << " bytes" << std::endl;
 
         // Write the encoded packet to the pipe
         if (fwrite(packet.data(), 1, packet.size(), pipe_in) != packet.size()) {
             perror("fwrite");
-        } else {
-            std::cout << "sent   " << packet.size() << " bytes" << std::endl;
         }
         fflush(pipe_in); // Ensure data is sent immediately
     }
 
-    void deinit() {
+    bool deinit() {
         if (pipe_in) {
             fclose(pipe_in);
             pipe_in = nullptr;
             wait(NULL);  //IMPORTANT!
         }
-
+        return true;
     }
 };

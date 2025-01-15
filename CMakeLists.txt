@@ -24,6 +24,8 @@ set(SOURCES
     ${NVENCODER_SOURCES}
     H264NVEncoder.h
     PipeToFFmpeg.h
+    capture.cpp
+    capture.h
 )
 
 add_executable(vsgviewer ${SOURCES})

@@ -14,6 +14,18 @@
 #include "H264NVEncoder.h"
 #include "PipeToFFmpeg.h"
 
+void hexdump(const void* addr, size_t len) {
+    const unsigned char* pc = static_cast<const unsigned char*>(addr);
+
+    size_t display_len = std::min(len, (size_t)16); // Display up to 16 bytes
+
+    for (size_t i = 0; i < display_len; i++) {
+        std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(pc[i]) << " ";
+    }
+
+    std::cout << std::dec << std::endl; // Reset to decimal output and newline
+}
+
 PipeToFFmpeg pipeToFFmpeg;
 H264NVEncoder h264NVEncoder;
 
@@ -392,6 +404,7 @@ void captureAndSave(vsg::ref_ptr<vsg::Window> window, vsg::ref_ptr<vsg::Options>
             std::cout << "Encodeded Packets   " << encodedPackets.size() << std::endl;
             for (auto& packet : encodedPackets)
             {
+                hexdump(packet.data(), 16);
                 pipeToFFmpeg.encodeAndStream(packet);
             }
             std::cout << "sent   " << encodedPackets.size() << " packets" << std::endl;
@@ -400,10 +413,11 @@ void captureAndSave(vsg::ref_ptr<vsg::Window> window, vsg::ref_ptr<vsg::Options>
             numPackets += h264NVEncoder.encode(nv12Data, 0, encodedPackets); // get last packet
             for (auto& packet : encodedPackets)
             {
+                hexdump(packet.data(), 16);
                 pipeToFFmpeg.encodeAndStream(packet);
             }
             std::cout << "sent   " << encodedPackets.size() << " packets" << std::endl;
-            
+
             if (vsg::write(image, filename, _options))
 //            if (vsg::write(imageData, filename, _options))
             {
@@ -779,6 +793,7 @@ int main(int argc, char** argv)
         bool eventDebugTest = false; // or true if you need the debug behavior
         vsg::ref_ptr<vsg::Event> event; //  Make sure this is declared if the screenshot function uses it.
         h264NVEncoder.init(nWidth, nHeight, &encodeCLIOptions, eFormat);
+        pipeToFFmpeg.init(nWidth, nHeight);
 
         viewer->start_point() = vsg::clock::now();
 
@@ -819,6 +834,7 @@ int main(int argc, char** argv)
         }
 
         h264NVEncoder.deinit();
+//        pipeToFFmpeg.deinit();
     }
     catch (const vsg::Exception& ve)
     {

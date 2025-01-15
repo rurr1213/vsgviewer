@@ -21,6 +21,7 @@ public:
         int pipefd[2];
         if (pipe(pipefd) == -1) {
             perror("pipe");
+            std::cout << "pipe create failed in parent" << std::endl;
             return false;
         }
 
@@ -49,6 +50,7 @@ public:
             pipe_in = fdopen(pipefd[1], "wb");
             if (!pipe_in) {
                 perror("fdopen");
+                std::cout << "pipe open failed in parent" << std::endl;
                 return false;
             }
         }
@@ -58,11 +60,17 @@ public:
 
 
     void encodeAndStream(std::vector<uint8_t>& packet) {
+        std::cout << "about to send " << packet.size() << " bytes" << std::endl;
+
         if (!pipe_in) return;
+
+        std::cout << "about to send2 " << packet.size() << " bytes" << std::endl;
 
         // Write the encoded packet to the pipe
         if (fwrite(packet.data(), 1, packet.size(), pipe_in) != packet.size()) {
             perror("fwrite");
+        } else {
+            std::cout << "sent   " << packet.size() << " bytes" << std::endl;
         }
         fflush(pipe_in); // Ensure data is sent immediately
     }

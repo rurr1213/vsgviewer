@@ -366,12 +366,14 @@ void nv12ToRgba(const uint8_t* nv12Data, int width, int height, std::vector<uint
     }
 }
 
+static int times = 0;
 
 void captureAndSave(vsg::ref_ptr<vsg::Window> window, vsg::ref_ptr<vsg::Options> _options, vsg::ref_ptr<vsg::Event> _event)
 {
-    static int times = 20;
+    times++;
+    std::cout << "capture packets " << times << std::endl;
 
-    if (times--==0) {
+    if ((times%20)==0) {
         /* *********** ************************************************
         this will scale the image to the target width! and distort the axpect ratio, but good for transmission.
         Adjust source image to have the correct aspect ratio as well. */

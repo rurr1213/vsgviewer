@@ -148,8 +148,6 @@ vsg::ref_ptr<vsg::ubvec4Array2D> Capture::captureScreenshot(vsg::ref_ptr<vsg::Wi
         targetImageFormat = VK_FORMAT_R8G8B8A8_UNORM;
     }
 
-    vsg::info("supportsBlit = ", supportsBlit);
-
     //
     // 2) create image to write to
     //
@@ -353,8 +351,6 @@ void* mappedData;
     }
 
     deviceMemory->unmap();
-    std::cout << "targetImageFormat = " << targetImageFormat << std::endl;
-    std::cout << "targetImageFormat = " << imageData << std::endl;
 
     return vsg::ref_ptr<vsg::ubvec4Array2D>(imageData); // Return a ref_ptr
 }
@@ -439,7 +435,6 @@ void Capture::captureAndSave(vsg::ref_ptr<vsg::Window> window, vsg::ref_ptr<vsg:
 {
     static int times = 0;
     times++;
-    std::cout << "capture packets " << times << std::endl;
 
     if ((times%2)==0) {
         /* *********** ************************************************
@@ -473,7 +468,6 @@ void Capture::captureAndSave(vsg::ref_ptr<vsg::Window> window, vsg::ref_ptr<vsg:
             int numPackets = h264NVEncoder.encode(nv12Data, nv12Data.size(), encodedPackets); // Use nv12Data, correct size, and store packets
             for (auto& packet : encodedPackets)
             {
-                hexdump(packet.data(), 16);
                 pipeToFFmpeg.encodeAndStream(packet);
             }
 

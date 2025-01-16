@@ -81,6 +81,8 @@ int main(int argc, char** argv)
         windowTraits->debugLayer = arguments.read({"--debug", "-d"});
         windowTraits->apiDumpLayer = arguments.read({"--api", "-a"});
         windowTraits->synchronizationLayer = arguments.read("--sync");
+        windowTraits->width = 1920;  // Set window width to 1920
+        windowTraits->height = 1080; // Set window height to 1080
         bool reportAverageFrameRate = arguments.read("--fps");
         if (arguments.read("--double-buffer")) windowTraits->swapchainPreferences.imageCount = 2;
         if (arguments.read("--triple-buffer")) windowTraits->swapchainPreferences.imageCount = 3; // default

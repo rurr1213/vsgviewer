@@ -174,6 +174,54 @@ vsgviewer/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vsgviewer.dir/build.make CMakeFiles/vsgviewer.dir/build
 .PHONY : vsgviewer/fast
 
+capture.o: capture.cpp.o
+.PHONY : capture.o
+
+# target to build an object file
+capture.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vsgviewer.dir/build.make CMakeFiles/vsgviewer.dir/capture.cpp.o
+.PHONY : capture.cpp.o
+
+capture.i: capture.cpp.i
+.PHONY : capture.i
+
+# target to preprocess a source file
+capture.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vsgviewer.dir/build.make CMakeFiles/vsgviewer.dir/capture.cpp.i
+.PHONY : capture.cpp.i
+
+capture.s: capture.cpp.s
+.PHONY : capture.s
+
+# target to generate assembly for a file
+capture.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vsgviewer.dir/build.make CMakeFiles/vsgviewer.dir/capture.cpp.s
+.PHONY : capture.cpp.s
+
+converter.o: converter.cpp.o
+.PHONY : converter.o
+
+# target to build an object file
+converter.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vsgviewer.dir/build.make CMakeFiles/vsgviewer.dir/converter.cpp.o
+.PHONY : converter.cpp.o
+
+converter.i: converter.cpp.i
+.PHONY : converter.i
+
+# target to preprocess a source file
+converter.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vsgviewer.dir/build.make CMakeFiles/vsgviewer.dir/converter.cpp.i
+.PHONY : converter.cpp.i
+
+converter.s: converter.cpp.s
+.PHONY : converter.s
+
+# target to generate assembly for a file
+converter.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vsgviewer.dir/build.make CMakeFiles/vsgviewer.dir/converter.cpp.s
+.PHONY : converter.cpp.s
+
 home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.o: home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.cpp.o
 .PHONY : home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.o
 
@@ -259,6 +307,12 @@ help:
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... vsgviewer"
+	@echo "... capture.o"
+	@echo "... capture.i"
+	@echo "... capture.s"
+	@echo "... converter.o"
+	@echo "... converter.i"
+	@echo "... converter.s"
 	@echo "... home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.o"
 	@echo "... home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.i"
 	@echo "... home/ravi/dev/video-sdk-samples/Samples/NvCodec/NvEncoder/NvEncoder.s"

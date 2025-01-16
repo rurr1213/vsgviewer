@@ -62,13 +62,19 @@ public:
 
 CaptureStats captureStats;
 
-Capture::Capture(int width, int height) : nWidth(width), nHeight(height) {
-
+Capture::Capture() {
 }
 
-bool Capture::init(void)
+Capture::~Capture() {
+}
+
+bool Capture::init(int width, int height)
 {
     bool status = true;
+
+    nWidth = width;
+    nHeight = height;
+
     NvEncoderInitParam encodeCLIOptions;
     NV_ENC_BUFFER_FORMAT  eFormat = NV_ENC_BUFFER_FORMAT_NV12;
 
@@ -101,22 +107,9 @@ void Capture::hexdump(const void* addr, size_t len) {
     std::cout << std::dec << std::endl; // Reset to decimal output and newline
 }
 
-vsg::ref_ptr<vsg::ubvec4Array2D> Capture::captureScreenshot(vsg::ref_ptr<vsg::Window> window, vsg::ref_ptr<vsg::Options> options, vsg::ref_ptr<vsg::Event> event, int targetWidth, int targetHeight, bool eventDebugTest) // Add event and eventDebugTest parameters
+vsg::ref_ptr<vsg::ubvec4Array2D> Capture::captureScreenshot(vsg::ref_ptr<vsg::Window> window, int targetWidth, int targetHeight) // Add event and eventDebugTest parameters
 {
     // printInfo(window);
-
-    if (eventDebugTest && event && event->status() == VK_EVENT_RESET)
-    {
-        std::cout << "event->status() == VK_EVENT_RESET" << std::endl;
-        // manually wait for the event to be signaled
-        while (event->status() == VK_EVENT_RESET)
-        {
-            std::cout << "w";
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        }
-        std::cout << std::endl;
-    }
-
     auto width = window->extent2D().width;
     auto height = window->extent2D().height;
 
@@ -355,83 +348,8 @@ void* mappedData;
     return vsg::ref_ptr<vsg::ubvec4Array2D>(imageData); // Return a ref_ptr
 }
 
-void Capture::rgbaToNv12(const uint8_t* rgbaData, int width, int height, std::vector<uint8_t>& nv12Data)
-{
-    nv12Data.resize(width * height * 3 / 2); // Allocate memory for NV12
 
-    uint8_t* yPlane = nv12Data.data();
-    uint8_t* uvPlane = yPlane + width * height;
-
-    for (int y = 0; y < height; ++y)
-    {
-        for (int x = 0; x < width; ++x)
-        {
-            int rgbaIndex = (y * width + x) * 4;
-            uint8_t r = rgbaData[rgbaIndex];
-            uint8_t g = rgbaData[rgbaIndex + 1];
-            uint8_t b = rgbaData[rgbaIndex + 2];
-
-            // YUV conversion (BT.709)
-            int yVal = 0.2126f * r + 0.7152f * g + 0.0722f * b;
-            yPlane[y * width + x] = static_cast<uint8_t>(std::clamp(yVal, 0, 255));
-
-            // Chroma subsampling (average of 2x2 block) - only for even coordinates
-            if (x % 2 == 0 && y % 2 == 0)
-            {
-                int uVal = -0.0999f * r - 0.3360f * g + 0.4360f * b;
-                int vVal = 0.6150f * r - 0.5586f * g - 0.0563f * b;
-
-
-                uvPlane[(y / 2) * width + x] = static_cast<uint8_t>(std::clamp(uVal+128, 0, 255)); // U
-                uvPlane[(y / 2) * width + x + 1] = static_cast<uint8_t>(std::clamp(vVal+128, 0, 255)); // V
-
-            }
-        }
-    }
-}
-
-void Capture::nv12ToRgba(const uint8_t* nv12Data, int width, int height, std::vector<uint8_t>& rgbaData) {
-    rgbaData.resize(width * height * 4); // Allocate space for RGBA data
-
-    const uint8_t* yPlane = nv12Data;
-    const uint8_t* uvPlane = yPlane + width * height;
-
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
-            int yIndex = y * width + x;
-            int uvIndex = (y / 2) * width + (x / 2) * 2; // Adjust for interleaved UV
-            int rgbaIndex = (y * width + x) * 4;
-
-
-            // Correctly extract U and V values
-            uint8_t u = uvPlane[uvIndex];
-            uint8_t v = uvPlane[uvIndex + 1];
-            uint8_t yy = yPlane[yIndex];
-
-
-
-            // YUV to RGB conversion (BT.709)
-            int c = yy - 16;
-            int d = u - 128;
-            int e = v - 128;
-
-            int r = (298 * c + 409 * e + 128) >> 8;
-            int g = (298 * c - 100 * d - 208 * e + 128) >> 8;
-            int b = (298 * c + 516 * d + 128) >> 8;
-
-
-
-            // Clamp and assign RGB values
-            rgbaData[rgbaIndex] = static_cast<uint8_t>(std::clamp(r, 0, 255));
-            rgbaData[rgbaIndex + 1] = static_cast<uint8_t>(std::clamp(g, 0, 255));
-            rgbaData[rgbaIndex + 2] = static_cast<uint8_t>(std::clamp(b, 0, 255));
-            rgbaData[rgbaIndex + 3] = 255; // Alpha (fully opaque)
-        }
-    }
-}
-
-
-void Capture::captureAndSave(vsg::ref_ptr<vsg::Window> window, vsg::ref_ptr<vsg::Options> _options)
+void Capture::captureAndSave(vsg::ref_ptr<vsg::Window> window)
 {
     static int times = 0;
     times++;
@@ -441,49 +359,44 @@ void Capture::captureAndSave(vsg::ref_ptr<vsg::Window> window, vsg::ref_ptr<vsg:
         this will scale the image to the target width! and distort the axpect ratio, but good for transmission.
         Adjust source image to have the correct aspect ratio as well. */
 
-        int targetWidth = nWidth;  // or whatever dimensions you need
-        int targetHeight = nHeight; // or whatever dimensions you need
         int nCaptured = 1;
         captureStats.start();
-        if (auto imageData = captureScreenshot(window, _options, event, targetWidth, targetHeight))
+        if (auto imageData = captureScreenshot(window, nWidth, nHeight))
         {
             // Determine correct initial size. Scaling will occur after this.
 
             std::vector<uint8_t> nv12Data;
 
-            rgbaToNv12(reinterpret_cast<const uint8_t*>(imageData->data()), targetWidth, targetHeight, nv12Data);  // Convert to NV12
+            converter.rgbaToNv12(reinterpret_cast<const uint8_t*>(imageData->data()), nWidth, nHeight, nv12Data);  // Convert to NV12
 
-            // Writing to PNG
-            vsg::Path filename = _options->paths.empty() ? "screenshot.png" : _options->paths[0] / "screenshot.png";
-
-            // Create vsg::Data for writing
-             std::vector<std::vector<uint8_t>> encodedPackets;
+            std::vector<std::vector<uint8_t>> encodedPackets;
             int numPackets = h264NVEncoder.encode(nv12Data, nv12Data.size(), encodedPackets); // Use nv12Data, correct size, and store packets
-            for (auto& packet : encodedPackets)
-            {
+
+            for (auto& packet : encodedPackets) {
                 pipeToFFmpeg.encodeAndStream(packet);
             }
 
-
-            numPackets += h264NVEncoder.encode(nv12Data, 0, encodedPackets); // get last packet
-            for (auto& packet : encodedPackets)
-            {
-                pipeToFFmpeg.encodeAndStream(packet);
-            }
-            /*
-            if (vsg::write(image, filename, _options))
-//            if (vsg::write(imageData, filename, _options))
-            {
-                std::cout << "Screenshot saved to " << filename << std::endl;
-            }
-            else
-            {
-                std::cout << "Failed to save screenshot." << std::endl;
-            }
-            */
         } else {
             std::cout << "Failed to capture screenshot." << std::endl;
         }
         captureStats.stop();
     }
 }
+
+bool Capture::writeToFile(vsg::ref_ptr<vsg::ubvec4Array2D> image, std::string filePathAndName) {
+
+    // Writing to PNG
+    vsg::Path filename = filePathAndName;
+
+    if (vsg::write(image, filename))
+    {
+        std::cout << "Screenshot saved to " << filename << std::endl;
+        return true;
+    }
+    else
+    {
+        std::cout << "Failed to save screenshot." << std::endl;
+        return false;
+    }
+}
+

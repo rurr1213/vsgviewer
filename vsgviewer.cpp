@@ -386,7 +386,7 @@ int main(int argc, char** argv)
 
             viewer->recordAndSubmit();
 
-            capture.captureAndSave(window, options);
+            capture.captureAndSave(window);
 
             viewer->present();
         }

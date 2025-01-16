@@ -26,6 +26,8 @@ set(SOURCES
     PipeToFFmpeg.h
     capture.cpp
     capture.h
+    converter.cpp
+    converter.h
 )
 
 add_executable(vsgviewer ${SOURCES})

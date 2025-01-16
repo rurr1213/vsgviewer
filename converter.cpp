@@ -4,46 +4,6 @@
 #include "converter.h"
 
 Converter::Converter() {
-    // Initialize lookup tables
-    for (int i = 0; i < 256; ++i) {
-        yLookup[i] = static_cast<uint8_t>(0.2126f * i);
-        uLookup[i] = static_cast<int>(-0.0999f * i);
-        vLookup[i] = static_cast<int>(0.6150f * i);
-    }
-}
-
-void Converter::rgbaToNv12_fast(const uint8_t* rgbaData, int width, int height, std::vector<uint8_t>& nv12Data)
-{
-    nv12Data.resize(width * height * 3 / 2); // Allocate memory for NV12
-
-    uint8_t* yPlane = nv12Data.data();
-    uint8_t* uvPlane = yPlane + width * height;
-
-    for (int y = 0; y < height; ++y)
-    {
-        for (int x = 0; x < width; ++x)
-        {
-            int rgbaIndex = (y * width + x) * 4;
-            uint8_t r = rgbaData[rgbaIndex];
-            uint8_t g = rgbaData[rgbaIndex + 1];
-            uint8_t b = rgbaData[rgbaIndex + 2];
-
-            // YUV conversion using lookup tables and integer arithmetic
-            int yVal = yLookup[r] + yLookup[g] + yLookup[b];
-            yPlane[y * width + x] = static_cast<uint8_t>(std::clamp(yVal, 0, 255));
-
-
-            if (x % 2 == 0 && y % 2 == 0)
-            {
-                int uVal = uLookup[r] + uLookup[g] + uLookup[b];
-                int vVal = vLookup[r] + vLookup[g] + vLookup[b];
-
-                uvPlane[(y / 2) * width + x] = static_cast<uint8_t>(std::clamp(uVal + 128, 0, 255));
-                uvPlane[(y / 2) * width + x + 1] = static_cast<uint8_t>(std::clamp(vVal + 128, 0, 255));
-
-            }
-        }
-    }
 }
 
 void Converter::rgbaToNv12(const uint8_t* rgbaData, int width, int height, std::vector<uint8_t>& nv12Data)

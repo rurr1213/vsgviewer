@@ -42,4 +42,7 @@ target_link_libraries(vsgviewer
     /lib/x86_64-linux-gnu/libcuda.so.1
 )
 
+set_target_properties(vsgviewer PROPERTIES CXX_STANDARD 17)
+
+
 install(TARGETS vsgviewer RUNTIME DESTINATION bin)

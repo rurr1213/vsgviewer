@@ -354,7 +354,7 @@ void Capture::captureAndSave(vsg::ref_ptr<vsg::Window> window)
     static int times = 0;
     times++;
 
-    if ((times%2)==0) {
+    if ((times%20)==0) {
         /* *********** ************************************************
         this will scale the image to the target width! and distort the axpect ratio, but good for transmission.
         Adjust source image to have the correct aspect ratio as well. */

@@ -44,5 +44,9 @@ target_link_libraries(vsgviewer
 
 set_target_properties(vsgviewer PROPERTIES CXX_STANDARD 17)
 
+# Set debug flags
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g -O0")
+set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -g")
 
 install(TARGETS vsgviewer RUNTIME DESTINATION bin)

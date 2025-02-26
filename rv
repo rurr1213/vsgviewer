@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# Check if a data file argument is provided
+#if [ -z "$1" ]; then
+#    echo "Usage: $0 <path-to-data-file>"
+#    exit 1
+#fi
+
+rm -f /tmp/.X99-lock
+
+# Start Xvfb on display :99
+# Check if Xvfb is running
+if ! pgrep -x "Xvfb" > /dev/null; then
+    echo "Xvfb is not running. Starting Xvfb..."
+    # Start Xvfb on display :99
+    Xvfb :99 -screen 0 1920x1080x24 &
+else
+    echo "Xvfb is already running."
+fi
+
+# Set the DISPLAY environment variable
+export DISPLAY=:99
+
+# Check if vsgviewer is running and kill it if it is
+if pgrep -f "vsgviewer" > /dev/null; then
+    echo "vsgviewer is running. Terminating it..."
+    pkill -f vsgviewer
+else
+    echo "vsgviewer is not running."
+fi
+#pkill -f vsgviewer
+
+# Run your application with the provided data file
+#/home/ravi/dev/photon/vsgviewer/build/vsgviewer "$1" > /dev/null 2>&1
+#/home/ravi/dev/photon/vsgviewer/build/vsgviewer ~/dev/guiTestData/12140_Skull_v3_L2.obj > /dev/null 2>&1
+#/home/ravi/dev/photon/vsgviewer/build/vsgviewer ~/dev/guiTestData/12140_Skull_v3_L2.obj
+/home/ravi/dev/photon/vsgviewer/build/vsgviewer ~/dev/guiTestData/12140_Skull_v3_L2.obj > /tmp/vsgviewer.log 2>&1 &
+
+# Get the PID of the last background process
+VSGVIEWER_PID=$!
+
+# Wait a moment to ensure the process has started
+sleep 2
+
+# Check if vsgviewer is still running
+if ps -p $VSGVIEWER_PID > /dev/null; then
+    echo "vsgviewer started successfully. PID: $VSGVIEWER_PID"
+else
+    echo "Failed to start vsgviewer."
+fi

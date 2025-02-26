@@ -14,6 +14,7 @@
 //#include "H264NVEncoder.h"
 //#include "PipeToFFmpeg.h"
 #include "capture.h"
+#include "VsgViewerPipe.h"
 
 Capture capture;
 
@@ -244,6 +245,15 @@ int main(int argc, char** argv)
             return 1;
         }
 
+        VsgViewerPipe vsgViewerPipe(VsgViewerPipe::SERVER);
+        vsgViewerPipe.write("vsgviewer is running\n");
+        std::string message;
+        int bytesRead = vsgViewerPipe.read(message);
+        if (bytesRead > 0)
+        {
+            vsgViewerPipe.write(message);
+        }
+
         vsg::ref_ptr<vsg::Node> vsg_scene;
         if (group->children.size() == 1)
             vsg_scene = group->children[0];
@@ -389,6 +399,12 @@ int main(int argc, char** argv)
             capture.captureAndSave(window);
 
             viewer->present();
+
+            int bytesRead = vsgViewerPipe.read(message);
+            if (bytesRead > 0) {
+                std::cout << "Received message: " << message << std::endl;
+                vsgViewerPipe.write(message);
+            }
         }
 
         if (reportAverageFrameRate)

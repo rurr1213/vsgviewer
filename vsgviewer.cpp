@@ -15,6 +15,7 @@
 //#include "PipeToFFmpeg.h"
 #include "capture.h"
 #include "VsgViewerPipe.h"
+#include "ViewerPipeCtrl.h"
 
 Capture capture;
 
@@ -384,6 +385,9 @@ int main(int argc, char** argv)
             }
         }
 
+        // Create the ViewerPipeCtrl object
+        ViewerPipeCtrl viewerPipeCtrl(*trackerball, *window);
+
         capture.init();
 
         viewer->start_point() = vsg::clock::now();
@@ -403,27 +407,8 @@ int main(int argc, char** argv)
 
             viewer->present();
 
-            int bytesRead = vsgViewerPipe.read(message);
-            if (bytesRead > 0) {
-                std::cout << "Received message: " << message << std::endl;
-                vsgViewerPipe.write(message);
-                if (message == "A\n")
-                    trackerball->zoom(0.1);
-                else if (message == "B\n")
-                    trackerball->zoom(-0.1);
-                else if (message == "R\n")
-                    trackerball->rotate(5.0*(3.12/360), vsg::dvec3(0.0, 1.0, 1.0));
-                else if (message == "P\n")
-                    trackerball->pan(vsg::dvec2(0.1, 0.0));
-                else if (message == "O\n") {
-                    vsg::ref_ptr<vsg::KeyPressEvent> keyPressEvent = vsg::KeyPressEvent::create();
-                    keyPressEvent->window = window;
-                    keyPressEvent->time = vsg::clock::now();
-                    keyPressEvent->keyBase = vsg::KEY_a;
-                    keyPressEvent->keyModified = vsg::KEY_a;
-                    trackerball->apply(*keyPressEvent);
-                }
-            }
+            // Process messages from the pipe
+            viewerPipeCtrl.process();
         }
 
         if (reportAverageFrameRate)

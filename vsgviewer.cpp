@@ -387,7 +387,7 @@ int main(int argc, char** argv)
         capture.init();
 
         viewer->start_point() = vsg::clock::now();
-        
+
         reportAverageFrameRate = false;
         // rendering main loop
         while (viewer->advanceToNextFrame() && (numFrames < 0 || (numFrames--) > 0) && (viewer->getFrameStamp()->simulationTime < maxTime))
@@ -411,6 +411,18 @@ int main(int argc, char** argv)
                     trackerball->zoom(0.1);
                 else if (message == "B\n")
                     trackerball->zoom(-0.1);
+                else if (message == "R\n")
+                    trackerball->rotate(5.0*(3.12/360), vsg::dvec3(0.0, 1.0, 1.0));
+                else if (message == "P\n")
+                    trackerball->pan(vsg::dvec2(0.1, 0.0));
+                else if (message == "O\n") {
+                    vsg::ref_ptr<vsg::KeyPressEvent> keyPressEvent = vsg::KeyPressEvent::create();
+                    keyPressEvent->window = window;
+                    keyPressEvent->time = vsg::clock::now();
+                    keyPressEvent->keyBase = vsg::KEY_a;
+                    keyPressEvent->keyModified = vsg::KEY_a;
+                    trackerball->apply(*keyPressEvent);
+                }
             }
         }
 

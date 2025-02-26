@@ -51,7 +51,9 @@ public:
                 "-g", "1",
                 "-c", "copy",
                 "-f",
-                "rtp", "rtp://172.18.0.3:5018",  NULL);
+                "rtp", "rtp://172.18.0.3:5018",
+                "-loglevel", "error",  // Suppress frame rate and fps reporting
+            NULL);
 
 
             perror("execlp"); // This should only be reached on error

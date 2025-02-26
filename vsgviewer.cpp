@@ -304,7 +304,9 @@ int main(int argc, char** argv)
             if (reportAverageFrameRate) maxTime = cameraAnimation->animation->maxTime();
         }
 
-        viewer->addEventHandler(vsg::Trackball::create(camera, ellipsoidModel));
+        auto trackerball = vsg::Trackball::create(camera, ellipsoidModel);
+
+        viewer->addEventHandler(trackerball);
 
         // if required preload specific number of PagedLOD levels.
         if (loadLevels > 0)
@@ -385,7 +387,8 @@ int main(int argc, char** argv)
         capture.init();
 
         viewer->start_point() = vsg::clock::now();
-
+        
+        reportAverageFrameRate = false;
         // rendering main loop
         while (viewer->advanceToNextFrame() && (numFrames < 0 || (numFrames--) > 0) && (viewer->getFrameStamp()->simulationTime < maxTime))
         {
@@ -404,6 +407,10 @@ int main(int argc, char** argv)
             if (bytesRead > 0) {
                 std::cout << "Received message: " << message << std::endl;
                 vsgViewerPipe.write(message);
+                if (message == "A\n")
+                    trackerball->zoom(0.1);
+                else if (message == "B\n")
+                    trackerball->zoom(-0.1);
             }
         }
 
